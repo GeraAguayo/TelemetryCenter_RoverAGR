@@ -1,5 +1,4 @@
 import javax.swing.*;
-import java.awt.*;
 import java.io.IOException;
 import java.util.Date;
 import java.text.SimpleDateFormat;
@@ -23,6 +22,11 @@ public class MainWindow extends JFrame {
     private JLabel labelPress;
     private JTextField inputIP;
     private JButton buttonIP;
+    private JLabel videoTitle;
+    private JButton btnRetryConect;
+    private JLabel titleLogs;
+    private JTextArea syslogTextArea;
+    private JButton primaryChecksBtn;
 
     UDP udp_client;
     boolean udp_ready = false;
@@ -80,6 +84,7 @@ public class MainWindow extends JFrame {
         this.labelTemp.setText(String.valueOf(udp_client.temp));
         this.labelAlt.setText(String.valueOf(udp_client.alt));
         this.labelPress.setText(String.valueOf(udp_client.pres));
+        this.syslogTextArea.setText(udp_client.LOG_TXT);
 
     }
 

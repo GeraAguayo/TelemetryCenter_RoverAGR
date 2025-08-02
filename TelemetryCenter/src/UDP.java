@@ -1,6 +1,7 @@
 import java.io.IOException;
 import java.net.*;
-import java.util.Scanner;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class UDP {
 
@@ -11,6 +12,11 @@ public class UDP {
     float temp = 0.0f;
     float pres = 0.0f;
     float alt = 0.0f;
+    //Current logs
+    public String LOG_TXT = "";
+    static int MAX_LOG_DISPLAY = 5;
+    Queue<String> log_queue = new ArrayDeque<>(MAX_LOG_DISPLAY);
+    Syslog syslog_dict = new Syslog();
 
     //Constructor
     public UDP(String ip_address) throws IOException {
@@ -20,11 +26,38 @@ public class UDP {
         socket = new DatagramSocket(PORT);
     }
 
+    //Manage logs
+    void updateLog(int log_id){
+        LOG_TXT = "";
+
+        //check for size
+        if (log_queue.size() >= MAX_LOG_DISPLAY){
+            log_queue.poll();
+        }
+
+        // Get the current date and time
+        Date now = new Date();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        String dateString = dateFormat.format(now);
+        SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm a");
+        String timeString = timeFormat.format(now);
+
+        String new_msg = syslog_dict.getMessage(log_id) +" - " + dateString + " "  + timeString + " \n";
+        log_queue.add(new_msg);
+
+        for (String msg : log_queue){
+            LOG_TXT += msg;
+        }
+
+    }
+
+
     //Retrieve data
     public int retrieveData() throws IOException {
+
         while(true){
             //send request
-            String requestMsg = "REQUEST_TM";
+            String requestMsg = "Telemetry_Center";
             byte[] sendBuffer = requestMsg.getBytes();
             DatagramPacket sendPacket = new DatagramPacket(sendBuffer, sendBuffer.length, ip, PORT);
             System.out.println("Sending request to rover...");
@@ -35,69 +68,74 @@ public class UDP {
             DatagramPacket receivePacket = new DatagramPacket(receiveBuffer, receiveBuffer.length);
 
             //Get data from the rover
-            int count = -1;
-            boolean finished = false;
-            while(!finished){
+            socket.receive(receivePacket);
+            String receivedData = new String(receivePacket.getData(), 0, receivePacket.getLength());
+            System.out.println("A: " + receivedData);
+
+            //Sensor data received
+            if (receivedData.equals("START_TM")){
+                System.out.println("Sensor data received");
+                //Get the number of sensor values
                 socket.receive(receivePacket);
-                String receivedData = new String(receivePacket.getData(), 0, receivePacket.getLength());
-                if (receivedData.equals("START_TM")){
-                    System.out.println("Telemtry start");
-                    count = 0;
-                }
-                else if(receivedData.equals("END_TM")){
-                    finished = true;
-                    System.out.println("End of telemetry");
-                    System.out.println("---------------------------------------------");
-                }
-                else{
-                    switch (count){
-                        case 1:
-                            //Temperature
-                            float temp_val = 0.0f;
-                            try{
-                                temp_val = Float.parseFloat(receivedData);
-                            } catch (Exception e){
-                                temp_val = 0.0f;
-                                continue;
-                            }
-
-                            this.temp = temp_val;
-                            System.out.println("Temperature: ");
-                            System.out.println(temp);
-                            break;
-                        case 2:
-                            //Pressure
-                            float pres_val = 0.0f;
-                            try {
-                                pres_val = Float.parseFloat(receivedData);
-                            } catch (Exception e){
-                                pres_val = 0.0f;
-                                continue;
-                            }
-
-                            this.pres = pres_val;
-                            System.out.println("Pressure:");
-                            System.out.println(pres);
-                            break;
-                        case 3:
-                            //Altitude
-                            float alt_val = 0.0f;
-                            try{
-                                alt_val = Float.parseFloat(receivedData);
-                            } catch (Exception e){
-                                alt_val = 0.0f;
-                                continue;
-                            }
-                            this.alt = alt_val;
-                            System.out.println("Altitude:");
-                            System.out.println(alt);
-                            //End of Data collection
-                            return 0;
+                receivedData = new String(receivePacket.getData(), 0, receivePacket.getLength());
+                System.out.println("B: " + receivedData);
+                int n_values = Integer.parseInt(receivedData);
+                //Get sensor values
+                float[] sensor_data = {Float.NaN, Float.NaN, Float.NaN}; //Temp, press, alt
+                for (int i = 0; i < n_values; i++){
+                    socket.receive(receivePacket);
+                    receivedData = new String(receivePacket.getData(), 0, receivePacket.getLength());
+                    System.out.println("C: " + receivedData);
+                    try{
+                        float sensor_val = Float.parseFloat(receivedData);
+                        sensor_data[i] = sensor_val;
                     }
-                    count++;
+                    catch (Exception e){
+                        System.out.println("Could not convert value!");
+                        System.out.println(e);
+                    }
                 }
+                //Update sensor values
+                this.temp = sensor_data[0];
+                this.pres = sensor_data[1];
+                this.alt = sensor_data[2];
+
+                //Get end message
+                socket.receive(receivePacket);
+                receivedData = new String(receivePacket.getData(), 0, receivePacket.getLength());
+                System.out.println("End sensor data " + receivedData);
+                return 0;
+
+
             }
+            //SYSLOG received
+            else if (receivedData.equals("SYSLOG")){
+                System.out.println("SYSLOG Received");
+                socket.receive(receivePacket);
+                receivedData = new String(receivePacket.getData(), 0, receivePacket.getLength());
+                int log_id = Integer.parseInt(receivedData);
+
+                //Update global variable
+                updateLog(log_id);
+
+                //Get end message
+                socket.receive(receivePacket);
+                receivedData = new String(receivePacket.getData(), 0, receivePacket.getLength());
+                System.out.println("End syslog " + receivedData);
+                return 0;
+            }
+            else if(receivedData.equals("END")){
+                System.out.println("End of packet");
+                return 0;
+
+            }
+            else{
+                System.out.println("Unknow server msg: "+ receivedData);
+                return 1;
+            }
+
         }
 
     }
+
 }
