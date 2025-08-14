@@ -2,6 +2,7 @@ import java.io.IOException;
 import java.net.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import javax.swing.JOptionPane;
 
 public class UDP {
 
@@ -51,12 +52,11 @@ public class UDP {
 
     }
 
-
     //Retrieve data
     public int retrieveData() throws IOException {
+        try{
 
-        while(true){
-            //send request
+            //send initial request
             String requestMsg = "Telemetry_Center";
             byte[] sendBuffer = requestMsg.getBytes();
             DatagramPacket sendPacket = new DatagramPacket(sendBuffer, sendBuffer.length, ip, PORT);
@@ -70,11 +70,9 @@ public class UDP {
             //Get data from the rover
             socket.receive(receivePacket);
             String receivedData = new String(receivePacket.getData(), 0, receivePacket.getLength());
-            System.out.println("A: " + receivedData);
 
             //Sensor data received
             if (receivedData.equals("START_TM")){
-                System.out.println("Sensor data received");
                 //Get the number of sensor values
                 socket.receive(receivePacket);
                 receivedData = new String(receivePacket.getData(), 0, receivePacket.getLength());
@@ -85,7 +83,6 @@ public class UDP {
                 for (int i = 0; i < n_values; i++){
                     socket.receive(receivePacket);
                     receivedData = new String(receivePacket.getData(), 0, receivePacket.getLength());
-                    System.out.println("C: " + receivedData);
                     try{
                         float sensor_val = Float.parseFloat(receivedData);
                         sensor_data[i] = sensor_val;
@@ -105,7 +102,6 @@ public class UDP {
                 receivedData = new String(receivePacket.getData(), 0, receivePacket.getLength());
                 System.out.println("End sensor data " + receivedData);
                 return 0;
-
 
             }
             //SYSLOG received
@@ -127,15 +123,24 @@ public class UDP {
             else if(receivedData.equals("END")){
                 System.out.println("End of packet");
                 return 0;
-
             }
             else{
                 System.out.println("Unknow server msg: "+ receivedData);
                 return 1;
             }
-
+        } catch (IOException e ){
+            System.err.println("Could not connect to server:");
+            System.err.println(e);
+            return -1;
         }
 
+    }
+
+    //Close the connection
+    public void close(){
+        if (socket != null && !socket.isClosed()){
+            socket.close();
+        }
     }
 
 }
