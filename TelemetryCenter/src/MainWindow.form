@@ -241,7 +241,7 @@
         <properties>
           <background color="-1"/>
           <foreground color="-16777216"/>
-          <text value="SET"/>
+          <text value="CONNECT"/>
         </properties>
       </component>
       <component id="9fdf" class="javax.swing.JButton" binding="btnRetryConect">

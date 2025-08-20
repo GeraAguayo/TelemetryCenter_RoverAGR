@@ -51,6 +51,7 @@ public class MainWindow extends JFrame {
 
         //Initialize datetime timer
         startUpdater();
+
         //Listener for btn ip set
         buttonIP.addActionListener(new ActionListener() {
             @Override
@@ -62,15 +63,17 @@ public class MainWindow extends JFrame {
                 else{
                     //Instantiate UDP class
                     try {
+                        if (udp_client != null){
+                            //If active socket, close it
+                            System.out.println("There was a udp client instance created");
+                            udp_client.close();
+                        }
                         udp_client = new UDP(in_addr);
                         udp_ready = true;
-                        yellow_light.setEnabled(true);
-                        green_light.setEnabled(false);
-                        red_light.setEnabled(false);
+                        on_yellow();
                     } catch (IOException ex) {
-                        JOptionPane.showMessageDialog(null, "Connect again", "Connection Error", JOptionPane.ERROR_MESSAGE);
-                        red_light.setEnabled(true);
-                        yellow_light.setEnabled(false);
+                        JOptionPane.showMessageDialog(null, ex.getMessage(), "Connection Error", JOptionPane.ERROR_MESSAGE);
+                        on_red();
                         udp_ready = false;
                         udp_client.close();
                     }
@@ -92,7 +95,7 @@ public class MainWindow extends JFrame {
 
     private void updateInterface() throws IOException {
         //Update Date and time string
-        Date now = new Date(); // Get the current date and time
+        Date now = new Date();
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
         String dateString = dateFormat.format(now);
         SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm a");
@@ -104,14 +107,13 @@ public class MainWindow extends JFrame {
             try{
                 updateSensorValues();
             }catch (IOException ex){
-                if (udp_client != null) { // Close the socket on connection loss
+                if (udp_client != null) {
+                    // Close the socket on connection loss
                     udp_client.close();
                 }
-                udp_ready = false; // Stop further requests on error
-                red_light.setEnabled(true);
-                green_light.setEnabled(false);
-                yellow_light.setEnabled(false);
-                JOptionPane.showMessageDialog(null, "Connection lost! Please check the server and retry.", "Connection Error", JOptionPane.ERROR_MESSAGE);
+                udp_ready = false;
+                on_red();
+                JOptionPane.showMessageDialog(null, ex.getMessage(), "Connection lost!", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
@@ -128,15 +130,11 @@ public class MainWindow extends JFrame {
         switch (return_code){
             case 0:
                 //Normal return
-                this.green_light.setEnabled(true);
-                this.yellow_light.setEnabled(false);
-                this.red_light.setEnabled(false);
+                on_green();
                 break;
             case -1:
                 //Error in connection
-                this.green_light.setEnabled(false);
-                this.yellow_light.setEnabled(false);
-                this.red_light.setEnabled(true);
+                on_red();
                 udp_client.close();
                 break;
         }
@@ -157,5 +155,24 @@ public class MainWindow extends JFrame {
         timer.setInitialDelay(0);
         timer.start();
     }
+    //Functions to control light indicator
+    private void on_green(){
+        this.green_light.setEnabled(true);
+        this.yellow_light.setEnabled(false);
+        this.red_light.setEnabled(false);
+    }
+
+    private void on_yellow(){
+        this.green_light.setEnabled(false);
+        this.yellow_light.setEnabled(true);
+        this.red_light.setEnabled(false);
+    }
+
+    private void on_red(){
+        this.green_light.setEnabled(false);
+        this.yellow_light.setEnabled(false);
+        this.red_light.setEnabled(true);
+    }
+
 
 }
