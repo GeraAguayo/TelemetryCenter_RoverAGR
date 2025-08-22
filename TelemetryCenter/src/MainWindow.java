@@ -36,6 +36,7 @@ public class MainWindow extends JFrame {
 
     UDP udp_client;
     boolean udp_ready = false;
+    String cache_LOGS = "";
 
     public MainWindow(){
         this.setTitle("Telemetry AGR");
@@ -124,6 +125,7 @@ public class MainWindow extends JFrame {
         this.labelTemp.setText(String.valueOf(udp_client.temp));
         this.labelAlt.setText(String.valueOf(udp_client.alt));
         this.labelPress.setText(String.valueOf(udp_client.pres));
+        //Update LOGS
         this.syslogTextArea.setText(udp_client.LOG_TXT);
 
         //Update connection status lights

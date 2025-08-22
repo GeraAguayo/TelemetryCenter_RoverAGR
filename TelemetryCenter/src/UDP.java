@@ -20,6 +20,7 @@ public class UDP {
     Syslog syslog_dict = new Syslog();
     //Control creation of multiple sockets
     boolean SOCKET_OPEN = false;
+    int DISCONNECTION_LOG = 0;
 
     //Constructor
     public UDP(String ip_address) throws IOException {
@@ -34,7 +35,7 @@ public class UDP {
 
     //Update System logs queue
     void updateLog(int log_id){
-        LOG_TXT = "";
+        
 
         //check for size
         if (log_queue.size() >= MAX_LOG_DISPLAY){
@@ -81,6 +82,7 @@ public class UDP {
             } catch (java.net.SocketTimeoutException e){
                 //Connection lost
                 System.out.println(e.getMessage());
+                updateLog(DISCONNECTION_LOG);
                 return -1;
             }
 
@@ -95,6 +97,7 @@ public class UDP {
                 } catch (java.net.SocketTimeoutException e){
                     //Connection lost
                     System.out.println(e.getMessage());
+                    updateLog(DISCONNECTION_LOG);
                     return -1;
                 }
                 int n_values = Integer.parseInt(receivedData);
@@ -115,6 +118,7 @@ public class UDP {
                     } catch (java.net.SocketTimeoutException e){
                         //Connection lost
                         System.out.println(e.getMessage());
+                        updateLog(DISCONNECTION_LOG);
                         return -1;
                     }
 
@@ -132,6 +136,7 @@ public class UDP {
                 } catch (java.net.SocketTimeoutException e){
                     //Connection lost
                     System.out.println(e.getMessage());
+                    updateLog(DISCONNECTION_LOG);
                     return -1;
                 }
 
@@ -150,6 +155,7 @@ public class UDP {
                 } catch (java.net.SocketTimeoutException e){
                     //Connection lost
                     System.out.println(e.getMessage());
+                    updateLog(DISCONNECTION_LOG);
                     return -1;
                 }
 
@@ -161,6 +167,7 @@ public class UDP {
                 } catch (java.net.SocketTimeoutException e){
                     //Connection lost
                     System.out.println(e.getMessage());
+                    updateLog(DISCONNECTION_LOG);
                     return -1;
                 }
 
@@ -187,12 +194,7 @@ public class UDP {
         if (socket != null && !socket.isClosed()){
             socket.close();
             SOCKET_OPEN = false;
+            updateLog(DISCONNECTION_LOG);
         }
     }
-
-    //Check if a connection is already created
-    public boolean is_socket_open(){
-        return SOCKET_OPEN;
-    }
-
 }
