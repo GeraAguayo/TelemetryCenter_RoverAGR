@@ -21,16 +21,41 @@ public class UDP {
     //Control creation of multiple sockets
     boolean SOCKET_OPEN = false;
     int DISCONNECTION_LOG = 0;
+    int CONNECTION_LOG = 1;
 
     //Constructor
     public UDP(String ip_address) throws IOException {
+        connect(ip_address);
+//        Scanner sc = new Scanner(System.in);
+//        ip = InetAddress.getByName(ip_address);
+//        //create socket with 5 segs of timeout
+//        socket = new DatagramSocket(PORT);
+//        socket.setSoTimeout(8000);
+//        SOCKET_OPEN = true;
+//        System.out.println("UDP socket created with IP " + ip_address);
+    }
+
+    //Create and connect socket
+    void connect(String ip_address) throws IOException {
         Scanner sc = new Scanner(System.in);
-        ip = InetAddress.getByName(ip_address);
+        this.ip = InetAddress.getByName(ip_address);
+        close();
         //create socket with 5 segs of timeout
-        socket = new DatagramSocket(PORT);
-        socket.setSoTimeout(8000);
-        SOCKET_OPEN = true;
+        this.socket = new DatagramSocket(PORT);
+        this.socket.setSoTimeout(8000);
+        this.SOCKET_OPEN = true;
         System.out.println("UDP socket created with IP " + ip_address);
+        updateLog(CONNECTION_LOG);
+
+    }
+
+    //Close the connection
+    public void close(){
+        if (socket != null && !socket.isClosed()){
+            socket.close();
+            SOCKET_OPEN = false;
+            updateLog(DISCONNECTION_LOG);
+        }
     }
 
     //Update System logs queue
@@ -187,14 +212,5 @@ public class UDP {
             return -1;
         }
 
-    }
-
-    //Close the connection
-    public void close(){
-        if (socket != null && !socket.isClosed()){
-            socket.close();
-            SOCKET_OPEN = false;
-            updateLog(DISCONNECTION_LOG);
-        }
     }
 }
