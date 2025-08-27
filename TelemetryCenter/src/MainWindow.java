@@ -28,7 +28,6 @@ public class MainWindow extends JFrame {
     private JButton btnRetryConect;
     private JLabel titleLogs;
     private JTextArea syslogTextArea;
-    private JButton primaryChecksBtn;
     private JLabel green_light;
     private JLabel yellow_light;
     private JLabel red_light;
@@ -36,7 +35,7 @@ public class MainWindow extends JFrame {
 
     UDP udp_client;
     boolean udp_ready = false;
-    String cache_LOGS = "";
+    String ip_address = "";
 
     Timer telemetryTimer;
     Timer guiTimer;
@@ -60,8 +59,8 @@ public class MainWindow extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 on_yellow();
-                String in_addr = inputIP.getText();
-                if (in_addr.isBlank()){
+                ip_address = inputIP.getText();
+                if (ip_address.isBlank()){
                     JOptionPane.showMessageDialog(null, "Set an IP address","IP Error",JOptionPane.ERROR_MESSAGE);
                 }
                 else{
@@ -69,13 +68,11 @@ public class MainWindow extends JFrame {
                     try {
                         if (udp_client != null){
                             //If active socket, close it
-                            System.out.println("There was a udp client instance created");
                             udp_client.close();
                         }
-                        udp_client = new UDP(in_addr);
+                        udp_client = new UDP(ip_address);
                         udp_ready = true;
                         startUpdaterTelemetry();
-                        on_green();
 
                     } catch (IOException ex) {
                         JOptionPane.showMessageDialog(null, ex.getMessage(), "Connection Error", JOptionPane.ERROR_MESSAGE);
@@ -119,25 +116,33 @@ public class MainWindow extends JFrame {
                 on_red();
             }
         });
-    }
 
-//    private void updateInterface() throws IOException {
-//        updateGUIValues();
-//        //Update sensor values
-//        if (this.udp_ready){
-//            try{
-//                updateSensorValues();
-//            }catch (IOException ex){
-//                if (udp_client != null) {
-//                    // Close the socket on connection loss
-//                    udp_client.close();
-//                }
-//                this.udp_ready = false;
-//                on_red();
-//                JOptionPane.showMessageDialog(null, ex.getMessage(), "Connection lost!", JOptionPane.ERROR_MESSAGE);
-//            }
-//        }
-//    }
+        //Listener for btn reset
+        btnRetryConect.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //Close current connection and telemetry timer
+                on_red();
+                udp_client.close();
+                udp_ready = false;
+                if (telemetryTimer != null){
+                    telemetryTimer.stop();
+                }
+                //Start new connection with same IP address
+                on_yellow();
+                try {
+                    udp_client = new UDP(ip_address);
+                    udp_ready = true;
+                    startUpdaterTelemetry();
+                } catch (IOException ex) {
+                    JOptionPane.showMessageDialog(null, ex.getMessage(), "Connection Error", JOptionPane.ERROR_MESSAGE);
+                    on_red();
+                    udp_ready = false;
+                    udp_client.close();
+                }
+            }
+        });
+    }
 
     private void updateGUIValues(){
         //Update Date and time string

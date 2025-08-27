@@ -26,13 +26,6 @@ public class UDP {
     //Constructor
     public UDP(String ip_address) throws IOException {
         connect(ip_address);
-//        Scanner sc = new Scanner(System.in);
-//        ip = InetAddress.getByName(ip_address);
-//        //create socket with 5 segs of timeout
-//        socket = new DatagramSocket(PORT);
-//        socket.setSoTimeout(8000);
-//        SOCKET_OPEN = true;
-//        System.out.println("UDP socket created with IP " + ip_address);
     }
 
     //Create and connect socket
