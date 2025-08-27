@@ -114,6 +114,7 @@ public class MainWindow extends JFrame {
                     telemetryTimer.stop();
                 }
                 on_red();
+                setLabelSensorNA();
             }
         });
 
@@ -123,6 +124,7 @@ public class MainWindow extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 //Close current connection and telemetry timer
                 on_red();
+                setLabelSensorNA();
                 udp_client.close();
                 udp_ready = false;
                 if (telemetryTimer != null){
@@ -174,6 +176,7 @@ public class MainWindow extends JFrame {
                 case -1:
                     //Error in connection
                     on_red();
+                    setLabelSensorNA();
                     udp_client.close();
                     break;
             }
@@ -238,6 +241,13 @@ public class MainWindow extends JFrame {
         this.green_light.setEnabled(false);
         this.yellow_light.setEnabled(false);
         this.red_light.setEnabled(true);
+    }
+
+    private void setLabelSensorNA(){
+        //Sets the value of the sensor values to N/A on disconnection
+        this.labelTemp.setText("N/A");
+        this.labelAlt.setText("N/A");
+        this.labelPress.setText("N/A");
     }
 
 
