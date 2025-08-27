@@ -33,7 +33,7 @@ public class UDP {
         Scanner sc = new Scanner(System.in);
         this.ip = InetAddress.getByName(ip_address);
         close();
-        //create socket with 5 segs of timeout
+        //create socket with 8 segs of timeout
         this.socket = new DatagramSocket(PORT);
         this.socket.setSoTimeout(8000);
         this.SOCKET_OPEN = true;
@@ -64,7 +64,7 @@ public class UDP {
         Date now = new Date();
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
         String dateString = dateFormat.format(now);
-        SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm a");
+        SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm.ss a");
         String timeString = timeFormat.format(now);
 
         String new_msg = syslog_dict.getMessage(log_id) +" - " + dateString + " "  + timeString + " \n";
