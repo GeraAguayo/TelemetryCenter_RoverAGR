@@ -2,10 +2,13 @@ import javax.swing.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
+import java.util.ArrayDeque;
 import java.util.Date;
 import java.text.SimpleDateFormat;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Queue;
+import java.util.Stack;
 
 public class MainWindow extends JFrame {
     private JPanel MainPanel;
@@ -33,12 +36,20 @@ public class MainWindow extends JFrame {
     private JLabel red_light;
     private JButton stop_btn;
 
+    //Udp mgmt
     UDP udp_client;
     boolean udp_ready = false;
     String ip_address = "";
 
+    //Timers
     Timer telemetryTimer;
     Timer guiTimer;
+
+    //Syslog manager
+    String LOG_TXT = "";
+    static int MAX_LOG_DISPLAY = 5;
+    public static Queue<String> log_queue = new ArrayDeque<>(MAX_LOG_DISPLAY);
+
 
     public MainWindow(){
         this.setTitle("Telemetry AGR");
@@ -165,7 +176,7 @@ public class MainWindow extends JFrame {
             this.labelAlt.setText(String.valueOf(udp_client.alt));
             this.labelPress.setText(String.valueOf(udp_client.pres));
             //Update LOGS
-            this.syslogTextArea.setText(udp_client.LOG_TXT);
+            renderLogs();
 
             //Update connection status lights
             switch (return_code){
@@ -250,5 +261,17 @@ public class MainWindow extends JFrame {
         this.labelPress.setText("N/A");
     }
 
+    //Convert from log ids to definitions
+    private void renderLogs(){
+        LOG_TXT = "";
+        Stack<String> logs_display_order = new Stack<>();
+        for (String msg : log_queue){
+            logs_display_order.push(msg);
+        }
 
+        while (!logs_display_order.isEmpty()){
+            LOG_TXT += logs_display_order.pop();
+        }
+        this.syslogTextArea.setText(LOG_TXT);
+    }
 }

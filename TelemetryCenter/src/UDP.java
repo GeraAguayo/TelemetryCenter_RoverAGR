@@ -14,9 +14,9 @@ public class UDP {
     float pres = 0.0f;
     float alt = 0.0f;
     //Current logs
-    public String LOG_TXT = "";
-    static int MAX_LOG_DISPLAY = 5;
-    Queue<String> log_queue = new ArrayDeque<>(MAX_LOG_DISPLAY);
+    //public String LOG_TXT = "";
+    //static int MAX_LOG_DISPLAY = 5;
+    //Queue<String> log_queue = new ArrayDeque<>(MAX_LOG_DISPLAY);
     Syslog syslog_dict = new Syslog();
     //Control creation of multiple sockets
     boolean SOCKET_OPEN = false;
@@ -56,8 +56,8 @@ public class UDP {
         
 
         //check for size
-        if (log_queue.size() >= MAX_LOG_DISPLAY){
-            log_queue.poll();
+        if (MainWindow.log_queue.size() >= MainWindow.MAX_LOG_DISPLAY){
+            MainWindow.log_queue.poll();
         }
 
         // Get the current date and time
@@ -68,12 +68,7 @@ public class UDP {
         String timeString = timeFormat.format(now);
 
         String new_msg = syslog_dict.getMessage(log_id) +" - " + dateString + " "  + timeString + " \n";
-        log_queue.add(new_msg);
-
-        for (String msg : log_queue){
-            LOG_TXT += msg;
-        }
-
+        MainWindow.log_queue.add(new_msg);
     }
 
     //Retrieve data
