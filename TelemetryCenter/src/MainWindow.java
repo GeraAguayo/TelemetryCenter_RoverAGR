@@ -1,3 +1,5 @@
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
 import javax.swing.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -17,7 +19,7 @@ public class MainWindow extends JFrame {
     private JPanel videoPanel;
     private JPanel sensorPanel;
     private JPanel chartPanel;
-    private JPanel logsPanel;
+    private JPanel tempPanel;
     private JLabel titleSensor;
     private JLabel labelTitleTemp;
     private JLabel labelTitleAlt;
@@ -50,6 +52,11 @@ public class MainWindow extends JFrame {
     static int MAX_LOG_DISPLAY = 5;
     public static Queue<String> log_queue = new ArrayDeque<>(MAX_LOG_DISPLAY);
 
+    //Chart manager
+    LineChart tempChartObj = new LineChart();
+    int MAX_CHART_ELEMENTS = 10;
+    Queue<Float> temp_values = new ArrayDeque<>(MAX_CHART_ELEMENTS);
+
 
     public MainWindow(){
         this.setTitle("Telemetry AGR");
@@ -64,6 +71,7 @@ public class MainWindow extends JFrame {
         this.red_light.setEnabled(false);
 
         startUpdaterGUI();
+        createTemperatureChart();
 
         //Listener for btn ip set (connect)
         buttonIP.addActionListener(new ActionListener() {
@@ -178,6 +186,13 @@ public class MainWindow extends JFrame {
             //Update LOGS
             renderLogs();
 
+            //Add temperature value to the queue
+            if (temp_values.size() >= MAX_CHART_ELEMENTS){
+                temp_values.poll();
+            }
+            temp_values.add(udp_client.temp);
+            updateTemperatureChart();
+
             //Update connection status lights
             switch (return_code){
                 case 0:
@@ -273,5 +288,27 @@ public class MainWindow extends JFrame {
             LOG_TXT += logs_display_order.pop();
         }
         this.syslogTextArea.setText(LOG_TXT);
+    }
+
+    //Create Line chart for temp
+    void createTemperatureChart(){
+        JFreeChart tempChart = tempChartObj.createChartFloat(
+                "Temperature",
+                "",
+                "C°",
+                "Temperature Values",
+                temp_values
+        );
+        ChartPanel chartPanel = new ChartPanel(tempChart);
+        chartPanel.setPreferredSize(new java.awt.Dimension(400, 200));
+        tempPanel.add(chartPanel);
+    }
+
+    void updateTemperatureChart(){
+        int key = 1;
+        for (float val : temp_values){
+            tempChartObj.dataset.addValue(val, "Temp values","T_"+key);
+            key++;
+        }
     }
 }
