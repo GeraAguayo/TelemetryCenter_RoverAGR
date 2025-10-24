@@ -37,6 +37,13 @@ public class MainWindow extends JFrame {
     private JLabel yellow_light;
     private JLabel red_light;
     private JButton stop_btn;
+    private JLabel titlePosition;
+    private JLabel labelHum;
+    private JLabel labelGas;
+    private JLabel titleHum;
+    private JLabel titleGas;
+    private JLabel labelLat;
+    private JLabel labelLon;
 
     //Udp mgmt
     UDP udp_client;
@@ -183,6 +190,10 @@ public class MainWindow extends JFrame {
             this.labelTemp.setText(String.valueOf(udp_client.temp));
             this.labelAlt.setText(String.valueOf(udp_client.alt));
             this.labelPress.setText(String.valueOf(udp_client.pres));
+            this.labelHum.setText(String.valueOf(udp_client.hum));
+            this.labelGas.setText(String.valueOf(udp_client.gas));
+            this.labelLat.setText(String.valueOf(udp_client.lat));
+            this.labelLon.setText(String.valueOf(udp_client.lon));
             //Update LOGS
             renderLogs();
 
@@ -274,6 +285,10 @@ public class MainWindow extends JFrame {
         this.labelTemp.setText("N/A");
         this.labelAlt.setText("N/A");
         this.labelPress.setText("N/A");
+        this.labelHum.setText("N/A");
+        this.labelGas.setText("N/A");
+        this.labelLat.setText("N/A");
+        this.labelLon.setText("N/A");
     }
 
     //Convert from log ids to definitions

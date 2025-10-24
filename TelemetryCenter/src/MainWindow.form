@@ -16,7 +16,7 @@
         </constraints>
         <properties>
           <background color="-1"/>
-          <font size="25"/>
+          <font size="30"/>
           <foreground color="-1"/>
           <text value="date"/>
         </properties>
@@ -51,7 +51,7 @@
             </constraints>
             <properties>
               <background color="-1"/>
-              <font size="25"/>
+              <font size="30"/>
               <foreground color="-1"/>
               <text value="Rover Cam"/>
             </properties>
@@ -68,7 +68,7 @@
           </vspacer>
         </children>
       </grid>
-      <grid id="5a34d" binding="sensorPanel" layout-manager="GridLayoutManager" row-count="4" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+      <grid id="5a34d" binding="sensorPanel" layout-manager="GridLayoutManager" row-count="8" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
         <margin top="0" left="0" bottom="0" right="0"/>
         <constraints>
           <grid row="2" column="5" row-span="1" col-span="4" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
@@ -85,7 +85,7 @@
             </constraints>
             <properties>
               <background color="-2067968"/>
-              <font size="15"/>
+              <font size="20"/>
               <foreground color="-2067968"/>
               <text value="Altitude (m):"/>
             </properties>
@@ -96,7 +96,7 @@
             </constraints>
             <properties>
               <background color="-1"/>
-              <font size="15"/>
+              <font size="20"/>
               <foreground color="-1"/>
               <text value="N/A"/>
             </properties>
@@ -107,7 +107,7 @@
             </constraints>
             <properties>
               <background color="-1"/>
-              <font size="15"/>
+              <font size="20"/>
               <foreground color="-1"/>
               <text value="N/A"/>
             </properties>
@@ -118,7 +118,7 @@
             </constraints>
             <properties>
               <background color="-15466241"/>
-              <font size="15"/>
+              <font size="20"/>
               <foreground color="-15466241"/>
               <text value="Temperature (°C):"/>
             </properties>
@@ -129,7 +129,7 @@
             </constraints>
             <properties>
               <background color="-16711893"/>
-              <font size="15"/>
+              <font size="20"/>
               <foreground color="-16711893"/>
               <text value="Pressure (hPa):"/>
             </properties>
@@ -140,7 +140,7 @@
             </constraints>
             <properties>
               <background color="-1"/>
-              <font size="15"/>
+              <font size="20"/>
               <foreground color="-1"/>
               <text value="N/A"/>
             </properties>
@@ -151,10 +151,91 @@
             </constraints>
             <properties>
               <background color="-1"/>
-              <font size="25"/>
+              <font size="30"/>
               <foreground color="-1"/>
               <horizontalAlignment value="2"/>
               <text value="Sensor readings"/>
+            </properties>
+          </component>
+          <component id="1cce7" class="javax.swing.JLabel" binding="titleHum">
+            <constraints>
+              <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <background color="-59713"/>
+              <enabled value="true"/>
+              <font size="20"/>
+              <foreground color="-59713"/>
+              <horizontalAlignment value="4"/>
+              <horizontalTextPosition value="4"/>
+              <text value="Humidity (%):"/>
+            </properties>
+          </component>
+          <component id="8466e" class="javax.swing.JLabel" binding="labelHum">
+            <constraints>
+              <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <background color="-1"/>
+              <font size="20"/>
+              <foreground color="-1"/>
+              <text value="N/A"/>
+            </properties>
+          </component>
+          <component id="924cf" class="javax.swing.JLabel" binding="titleGas">
+            <constraints>
+              <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <background color="-5570798"/>
+              <font size="20"/>
+              <foreground color="-5570798"/>
+              <text value="Gas (kOhm):"/>
+            </properties>
+          </component>
+          <component id="f9895" class="javax.swing.JLabel" binding="labelGas">
+            <constraints>
+              <grid row="5" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <background color="-1"/>
+              <font size="20"/>
+              <foreground color="-1"/>
+              <text value="N/A"/>
+            </properties>
+          </component>
+          <component id="2bb8e" class="javax.swing.JLabel" binding="titlePosition">
+            <constraints>
+              <grid row="6" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <background color="-1"/>
+              <font size="30"/>
+              <foreground color="-1"/>
+              <horizontalAlignment value="2"/>
+              <text value="Position"/>
+            </properties>
+          </component>
+          <component id="c071e" class="javax.swing.JLabel" binding="labelLat">
+            <constraints>
+              <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <background color="-1"/>
+              <font size="20"/>
+              <foreground color="-1"/>
+              <text value="Latitude"/>
+            </properties>
+          </component>
+          <component id="b24a1" class="javax.swing.JLabel" binding="labelLon">
+            <constraints>
+              <grid row="7" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <background color="-1"/>
+              <font size="20"/>
+              <foreground color="-1"/>
+              <text value="Longitude"/>
             </properties>
           </component>
         </children>
@@ -176,7 +257,7 @@
             </constraints>
             <properties>
               <background color="-1"/>
-              <font size="25"/>
+              <font size="30"/>
               <foreground color="-1"/>
               <text value="System Logs:"/>
             </properties>

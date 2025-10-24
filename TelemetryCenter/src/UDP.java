@@ -13,6 +13,10 @@ public class UDP {
     float temp = 0.0f;
     float pres = 0.0f;
     float alt = 0.0f;
+    float hum = 0.0f;
+    float gas = 0.0f;
+    float lat = 0.0f;
+    float lon = 0.0f;
     //Current logs
     //public String LOG_TXT = "";
     //static int MAX_LOG_DISPLAY = 5;
@@ -114,9 +118,11 @@ public class UDP {
                     return -1;
                 }
                 int n_values = Integer.parseInt(receivedData);
+                float[] sensor_data = new float[n_values];
+                Arrays.fill(sensor_data, Float.NaN);
 
                 //Get sensor values
-                float[] sensor_data = {Float.NaN, Float.NaN, Float.NaN}; //Temp, press, alt
+                //float[] sensor_data = {Float.NaN, Float.NaN, Float.NaN}; //Temp, press, alt
                 for (int i = 0; i < n_values; i++){
                     try{
                         socket.receive(receivePacket);
@@ -140,6 +146,10 @@ public class UDP {
                 this.temp = sensor_data[0];
                 this.pres = sensor_data[1];
                 this.alt = sensor_data[2];
+                this.hum = sensor_data[3];
+                this.gas = sensor_data[4];
+                this.lat = sensor_data[5];
+                this.lon = sensor_data[6];
 
                 //Get end message
                 try{
