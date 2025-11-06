@@ -44,6 +44,7 @@ public class MainWindow extends JFrame {
     private JLabel titleGas;
     private JLabel labelLat;
     private JLabel labelLon;
+    public JLabel videoLabel;
 
     //Udp mgmt
     UDP udp_client;
