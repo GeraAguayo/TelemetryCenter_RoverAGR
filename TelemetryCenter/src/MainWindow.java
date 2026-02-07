@@ -193,8 +193,8 @@ public class MainWindow extends JFrame {
             this.labelPress.setText(String.valueOf(udp_client.pres));
             this.labelHum.setText(String.valueOf(udp_client.hum));
             this.labelGas.setText(String.valueOf(udp_client.gas));
-            this.labelLat.setText(String.valueOf(udp_client.lat));
-            this.labelLon.setText(String.valueOf(udp_client.lon));
+            this.labelLat.setText("Lat: " + String.valueOf(udp_client.lat));
+            this.labelLon.setText("Lon: " + String.valueOf(udp_client.lon));
             //Update LOGS
             renderLogs();
 
