@@ -1,5 +1,3 @@
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
 import javax.swing.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -48,6 +46,11 @@ public class MainWindow extends JFrame {
     private JLabel distanceTotal;
     private JLabel distanceLabel;
     private JLabel deltaTitle;
+    private JButton resetTravelBtn;
+    private JButton graphBtn;
+    private JButton startWritingBtn;
+    private JButton stopWritingBtn;
+    private JLabel addonTitle;
 
     //Udp mgmt
     UDP udp_client;
