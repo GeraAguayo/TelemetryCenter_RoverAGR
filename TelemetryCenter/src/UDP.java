@@ -41,7 +41,6 @@ public class UDP {
         this.socket = new DatagramSocket(PORT);
         this.socket.setSoTimeout(8000);
         this.SOCKET_OPEN = true;
-        System.out.println("UDP socket created with IP " + ip_address);
         updateLog(CONNECTION_LOG);
 
     }
@@ -86,7 +85,6 @@ public class UDP {
             byte[] receiveBuffer = new byte[1024];
             DatagramPacket receivePacket;
             String receivedData;
-            System.out.println("Sending request to rover...");
 
             try{
                 socket.send(sendPacket);
@@ -105,15 +103,13 @@ public class UDP {
 
             //Sensor data received
             if (receivedData.equals("START_TM")){
-                System.out.println("Sensor data received...");
-
                 //Get the number of sensor values
                 try{
                     socket.receive(receivePacket);
                     receivedData = new String(receivePacket.getData(), 0, receivePacket.getLength());
                 } catch (java.net.SocketTimeoutException e){
                     //Connection lost
-                    System.out.println(e.getMessage());
+                    System.out.println("Connection lost: " + e.getMessage());
                     updateLog(DISCONNECTION_LOG);
                     return -1;
                 }
@@ -155,7 +151,6 @@ public class UDP {
                 try{
                     socket.receive(receivePacket);
                     receivedData = new String(receivePacket.getData(), 0, receivePacket.getLength());
-                    System.out.println("End sensor data");
                 } catch (java.net.SocketTimeoutException e){
                     //Connection lost
                     System.out.println(e.getMessage());
@@ -168,7 +163,6 @@ public class UDP {
             }
             //SYSLOG received
             else if (receivedData.equals("SYSLOG")){
-                System.out.println("SYSLOG Received...");
                 try{
                     socket.receive(receivePacket);
                     receivedData = new String(receivePacket.getData(), 0, receivePacket.getLength());
@@ -181,7 +175,6 @@ public class UDP {
                     updateLog(DISCONNECTION_LOG);
                     return -1;
                 }
-
                 //Get end message
                 try{
                     socket.receive(receivePacket);
@@ -189,7 +182,7 @@ public class UDP {
                     System.out.println("End syslog");
                 } catch (java.net.SocketTimeoutException e){
                     //Connection lost
-                    System.out.println(e.getMessage());
+                    System.out.println("Connection lost: " + e.getMessage());
                     updateLog(DISCONNECTION_LOG);
                     return -1;
                 }
@@ -197,7 +190,6 @@ public class UDP {
                 return 0;
             }
             else if(receivedData.equals("END")){
-                System.out.println("End of packet");
                 return 0;
             }
             else{
@@ -205,8 +197,7 @@ public class UDP {
                 return 1;
             }
         } catch (IOException e ){
-            System.err.println("Could not connect to server:");
-            System.err.println(e);
+            System.err.println("Could not connect to server:" + e);
             return -1;
         }
 

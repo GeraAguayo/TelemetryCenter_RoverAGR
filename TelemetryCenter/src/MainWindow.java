@@ -44,13 +44,14 @@ public class MainWindow extends JFrame {
     private JLabel labelLon;
     public JLabel videoLabel;
     private JLabel distanceTotal;
-    private JLabel distanceLabel;
+    private JLabel labelDistance;
     private JLabel deltaTitle;
     private JButton resetTravelBtn;
     private JButton graphBtn;
     private JButton startWritingBtn;
     private JButton stopWritingBtn;
     private JLabel addonTitle;
+    private JLabel labelDelta;
 
     //Udp mgmt
     UDP udp_client;
@@ -65,6 +66,9 @@ public class MainWindow extends JFrame {
     String LOG_TXT = "";
     static int MAX_LOG_DISPLAY = 5;
     public static Queue<String> log_queue = new ArrayDeque<>(MAX_LOG_DISPLAY);
+
+    //GPS Calculations
+    DistanceCalculation coords_calculator = new DistanceCalculation();
 
     //Chart manager
 //    LineChart tempChartObj = new LineChart();
@@ -156,6 +160,7 @@ public class MainWindow extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 //Close current connection and telemetry timer
                 on_red();
+                coords_calculator.distance_traveled = 0;
                 setLabelSensorNA();
                 udp_client.close();
                 udp_ready = false;
@@ -174,6 +179,15 @@ public class MainWindow extends JFrame {
                     udp_ready = false;
                     udp_client.close();
                 }
+            }
+        });
+
+        //Listener for reset travel btn
+        resetTravelBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                coords_calculator.distance_traveled = 0;
+
             }
         });
     }
@@ -200,6 +214,11 @@ public class MainWindow extends JFrame {
             this.labelGas.setText(String.valueOf(udp_client.gas));
             this.labelLat.setText("Lat: " + String.valueOf(udp_client.lat));
             this.labelLon.setText("Lon: " + String.valueOf(udp_client.lon));
+            //Calculate delta and distance traveled
+            coords_calculator.addCoordinates(udp_client.lat, udp_client.lon);
+            double delta = coords_calculator.calculateDelta();
+            this.labelDelta.setText(String.format("%.2f m", delta));
+            this.labelDistance.setText(String.format("%.2f m", coords_calculator.distance_traveled));
             //Update LOGS
             renderLogs();
 
@@ -229,7 +248,7 @@ public class MainWindow extends JFrame {
 
     //Timer for telemetry updates
     private void startUpdaterTelemetry() {
-        this.telemetryTimer = new Timer(5000, new ActionListener() {
+        this.telemetryTimer = new Timer(1000, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
