@@ -2,6 +2,8 @@ import javax.swing.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayDeque;
 import java.util.Date;
 import java.text.SimpleDateFormat;
@@ -69,6 +71,9 @@ public class MainWindow extends JFrame {
 
     //GPS Calculations
     DistanceCalculation coords_calculator = new DistanceCalculation();
+
+    //Telemetry management
+    TelemetryWriter telemetryManager = new TelemetryWriter();
 
     //Chart manager
 //    LineChart tempChartObj = new LineChart();
@@ -190,6 +195,29 @@ public class MainWindow extends JFrame {
 
             }
         });
+
+        //Listener for start writing btn
+        startWritingBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                startWritingBtn.setEnabled(false);
+                stopWritingBtn.setEnabled(true);
+                telemetryManager.startFile();
+
+
+            }
+        });
+
+        //Listener for stop writing btn
+        stopWritingBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                startWritingBtn.setEnabled(true);
+                stopWritingBtn.setEnabled(false);
+                telemetryManager.endFile();
+
+            }
+        });
     }
 
     private void updateGUIValues(){
@@ -206,14 +234,21 @@ public class MainWindow extends JFrame {
     private void updateSensorValues() throws IOException {
         try{
             //Update sensor values based on UDP client info
+            String temp_str = String.valueOf(udp_client.temp);
+            String alt_str = String.valueOf(udp_client.alt);
+            String pres_str = String.valueOf(udp_client.pres);
+            String hum_str = String.valueOf(udp_client.hum);
+            String gas_str = String.valueOf(udp_client.gas);
+            String lat_str = String.valueOf(udp_client.lat);
+            String lon_str = String.valueOf(udp_client.lon);
             int return_code = udp_client.retrieveData();
-            this.labelTemp.setText(String.valueOf(udp_client.temp));
-            this.labelAlt.setText(String.valueOf(udp_client.alt));
-            this.labelPress.setText(String.valueOf(udp_client.pres));
-            this.labelHum.setText(String.valueOf(udp_client.hum));
-            this.labelGas.setText(String.valueOf(udp_client.gas));
-            this.labelLat.setText("Lat: " + String.valueOf(udp_client.lat));
-            this.labelLon.setText("Lon: " + String.valueOf(udp_client.lon));
+            this.labelTemp.setText(temp_str);
+            this.labelAlt.setText(alt_str);
+            this.labelPress.setText(pres_str);
+            this.labelHum.setText(hum_str);
+            this.labelGas.setText(gas_str);
+            this.labelLat.setText("Lat: " + lat_str);
+            this.labelLon.setText("Lon: " + lon_str);
             //Calculate delta and distance traveled
             coords_calculator.addCoordinates(udp_client.lat, udp_client.lon);
             double delta = coords_calculator.calculateDelta();
@@ -221,6 +256,25 @@ public class MainWindow extends JFrame {
             this.labelDistance.setText(String.format("%.2f m", coords_calculator.distance_traveled));
             //Update LOGS
             renderLogs();
+            //Write data to log
+            LocalDateTime myDateObj = LocalDateTime.now();
+            DateTimeFormatter date_f = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+            DateTimeFormatter time_f = DateTimeFormatter.ofPattern("HH:mm");
+            String date_str = myDateObj.format(date_f);
+            String time_str = myDateObj.format(time_f);
+            String[] telemetry_row = {
+                    date_str,
+                    time_str,
+                    temp_str,
+                    alt_str,
+                    pres_str,
+                    hum_str,
+                    gas_str,
+                    lat_str,
+                    lon_str,
+                    String.valueOf(coords_calculator.distance_traveled)
+            };
+            telemetryManager.logTelemetry(telemetry_row);
 
             //Update connection status lights
             switch (return_code){
