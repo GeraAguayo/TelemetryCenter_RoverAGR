@@ -11,8 +11,11 @@ public class DistanceCalculation {
 
 
     void addCoordinates(float lat, float lon){
-        latHistory.add(lat);
-        lonHistory.add(lon);
+        float rLat = (float) (Math.round(lat * 100000.0) / 100000.0);
+        float rLon = (float) (Math.round(lon * 100000.0) / 100000.0);
+
+        latHistory.add(rLat);
+        lonHistory.add(rLon);
         if (latHistory.size() > SIZE){
             latHistory.poll();
             lonHistory.poll();
@@ -54,7 +57,7 @@ public class DistanceCalculation {
 
         last_avg_lat = currentAvg[0];
         last_avg_lon = currentAvg[1];
-        if (delta >= 0.5){
+        if (delta >= 1.0){
             last_avg_lat = currentAvg[0];
             last_avg_lon = currentAvg[1];
             distance_traveled+=delta;

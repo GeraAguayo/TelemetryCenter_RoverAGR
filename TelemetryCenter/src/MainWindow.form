@@ -94,7 +94,7 @@
             <properties>
               <background color="-2067968"/>
               <font size="20"/>
-              <foreground color="-2067968"/>
+              <foreground color="-16739481"/>
               <text value="Altitude (m):"/>
             </properties>
           </component>
@@ -125,9 +125,9 @@
               <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="5" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <background color="-15466241"/>
+              <background color="-16723309"/>
               <font size="20"/>
-              <foreground color="-15466241"/>
+              <foreground color="-16723309"/>
               <text value="Temperature (°C):"/>
             </properties>
           </component>
@@ -138,7 +138,7 @@
             <properties>
               <background color="-16711893"/>
               <font size="20"/>
-              <foreground color="-16711893"/>
+              <foreground color="-16723309"/>
               <text value="Pressure (hPa):"/>
             </properties>
           </component>
@@ -173,7 +173,7 @@
               <background color="-59713"/>
               <enabled value="true"/>
               <font size="20"/>
-              <foreground color="-59713"/>
+              <foreground color="-16739481"/>
               <horizontalAlignment value="4"/>
               <horizontalTextPosition value="4"/>
               <text value="Humidity (%):"/>
@@ -197,7 +197,7 @@
             <properties>
               <background color="-5570798"/>
               <font size="20"/>
-              <foreground color="-5570798"/>
+              <foreground color="-16723309"/>
               <text value="Gas (kOhm):"/>
             </properties>
           </component>

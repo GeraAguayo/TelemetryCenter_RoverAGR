@@ -302,7 +302,7 @@ public class MainWindow extends JFrame {
 
     //Timer for telemetry updates
     private void startUpdaterTelemetry() {
-        this.telemetryTimer = new Timer(1000, new ActionListener() {
+        this.telemetryTimer = new Timer(2500, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
