@@ -6,12 +6,32 @@ import org.jfree.data.category.DefaultCategoryDataset;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.Queue;
 
 public class LineChart {
     public DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 
-    JFreeChart createChartFloat(String chartTitle, String xLabel, String yLabel, String rowKey, Queue<Float> data){
+    public JFreeChart createChartFloat(String chartTitle, String xLabel, String yLabel, String rowName, ArrayList<Float> values, ArrayList<String> timestamps) {
+        dataset.clear();
+
+        for (int i = 0; i < values.size(); i++) {
+            float val = values.get(i);
+            String time = timestamps.get(i);
+            dataset.addValue(val, rowName, time);
+        }
+
+        return ChartFactory.createLineChart(
+                chartTitle,
+                xLabel,
+                yLabel,
+                dataset,
+                PlotOrientation.VERTICAL,
+                true, true, false
+        );
+    }
+
+    JFreeChart createSimpleChartFloat(String chartTitle, String xLabel, String yLabel, String rowKey, Queue<Float> data){
         //Pupulate the dataset with the data provided
         int key = 1;
         for (float d : data){
@@ -32,7 +52,28 @@ public class LineChart {
         );
     }
 
-    JFreeChart createChartInt(String chartTitle, String xLabel, String yLabel, String rowKey, Queue<Integer> data){
+    JFreeChart createSimpleChartFloat(String chartTitle, String xLabel, String yLabel, String rowKey, ArrayList<Float> data){
+        //Pupulate the dataset with the data provided
+        int key = 1;
+        for (float d : data){
+            dataset.addValue(d,rowKey, "T_"+key);
+            key++;
+        }
+
+        //Create the chart
+        return ChartFactory.createLineChart(
+                chartTitle,
+                xLabel,
+                yLabel,
+                dataset,
+                PlotOrientation.VERTICAL,
+                true, //Include legend
+                true, //Include tooltips
+                false //Include URLs
+        );
+    }
+
+    JFreeChart createSimpleChartInt(String chartTitle, String xLabel, String yLabel, String rowKey, Queue<Integer> data){
         //Pupulate the dataset with the data provided
         int key = 1;
         for (int d : data){
@@ -52,4 +93,26 @@ public class LineChart {
                 false //Include URLs
         );
     }
+
+    JFreeChart createSimpleChartInt(String chartTitle, String xLabel, String yLabel, String rowKey, ArrayList<Integer> data){
+        //Pupulate the dataset with the data provided
+        int key = 1;
+        for (int d : data){
+            dataset.addValue(d,rowKey, "T_"+key);
+            key++;
+        }
+
+        //Create the chart
+        return ChartFactory.createLineChart(
+                chartTitle,
+                xLabel,
+                yLabel,
+                dataset,
+                PlotOrientation.VERTICAL,
+                true, //Include legend
+                true, //Include tooltips
+                false //Include URLs
+        );
+    }
+
 }
