@@ -75,6 +75,9 @@ public class MainWindow extends JFrame {
     //Telemetry management
     TelemetryWriter telemetryManager = new TelemetryWriter();
 
+    //Graph telemetry
+    boolean active_instance_graph = false;
+
     //Chart manager
 //    LineChart tempChartObj = new LineChart();
 //    int MAX_CHART_ELEMENTS = 10;
@@ -218,6 +221,26 @@ public class MainWindow extends JFrame {
 
             }
         });
+
+        //Listener for graph data btn
+        graphBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (!active_instance_graph){
+                    TelemetryDisplay display_graph = new TelemetryDisplay();
+                    // Check if graph window is closed
+                    display_graph.addWindowListener(new java.awt.event.WindowAdapter() {
+                        @Override
+                        public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                            active_instance_graph = false;
+                        }
+                    });
+                    display_graph.setVisible(true);
+                    active_instance_graph = true;
+                }
+
+            }
+        });
     }
 
     private void updateGUIValues(){
@@ -259,7 +282,7 @@ public class MainWindow extends JFrame {
             //Write data to log
             LocalDateTime myDateObj = LocalDateTime.now();
             DateTimeFormatter date_f = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-            DateTimeFormatter time_f = DateTimeFormatter.ofPattern("HH:mm");
+            DateTimeFormatter time_f = DateTimeFormatter.ofPattern("HH:mm:ss");
             String date_str = myDateObj.format(date_f);
             String time_str = myDateObj.format(time_f);
             String[] telemetry_row = {
