@@ -1,9 +1,10 @@
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.DefaultCategoryDataset;
-
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
@@ -21,14 +22,24 @@ public class LineChart {
             dataset.addValue(val, rowName, time);
         }
 
-        return ChartFactory.createLineChart(
+        JFreeChart chart = ChartFactory.createLineChart(
                 chartTitle,
                 xLabel,
                 yLabel,
                 dataset,
                 PlotOrientation.VERTICAL,
-                true, true, false
+                true,
+                true,
+                false
         );
+
+        //autoscale settings
+        CategoryPlot plot = chart.getCategoryPlot();
+        NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
+        rangeAxis.setAutoRange(true);
+        rangeAxis.setAutoRangeIncludesZero(false);
+
+        return chart;
     }
 
     JFreeChart createSimpleChartFloat(String chartTitle, String xLabel, String yLabel, String rowKey, Queue<Float> data){
