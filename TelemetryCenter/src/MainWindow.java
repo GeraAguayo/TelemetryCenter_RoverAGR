@@ -399,26 +399,4 @@ public class MainWindow extends JFrame {
         }
         this.syslogTextArea.setText(LOG_TXT);
     }
-
-    //Create Line chart for temp
-//    void createTemperatureChart(){
-//        JFreeChart tempChart = tempChartObj.createChartFloat(
-//                "Temperature",
-//                "",
-//                "C°",
-//                "Temperature Values",
-//                temp_values
-//        );
-//        ChartPanel chartPanel = new ChartPanel(tempChart);
-//        chartPanel.setPreferredSize(new java.awt.Dimension(400, 200));
-//        addonPanel.add(chartPanel);
-//    }
-//
-//    void updateTemperatureChart(){
-//        int key = 1;
-//        for (float val : temp_values){
-//            tempChartObj.dataset.addValue(val, "Temp values","T_"+key);
-//            key++;
-//        }
-//    }
 }
