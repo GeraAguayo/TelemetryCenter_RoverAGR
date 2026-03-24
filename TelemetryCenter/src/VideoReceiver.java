@@ -4,6 +4,7 @@ import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.objdetect.CascadeClassifier;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
 import java.io.ByteArrayOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -19,7 +20,7 @@ public class VideoReceiver {
     private CascadeClassifier faceDetector;
 
     public VideoReceiver() {
-        String xmlPath = "haarcascade_frontalface_alt.xml";
+        String xmlPath = "haarcascade_fullbody.xml";
         this.faceDetector = new CascadeClassifier(xmlPath);
 
         if (faceDetector.empty()) {
@@ -53,8 +54,8 @@ public class VideoReceiver {
                         Mat frame = Imgcodecs.imdecode(mob, Imgcodecs.IMREAD_COLOR);
 
                         if (!frame.empty()) {
-                            detectFaces(frame);
                             Core.flip(frame, frame, 1);
+                            detect(frame);
                             latestFrame = matToBufferedImage(frame);
                         }
                     }
@@ -65,24 +66,45 @@ public class VideoReceiver {
         }).start();
     }
 
-    private void detectFaces(Mat frame) {
+    private void detect(Mat frame) {
         if (faceDetector.empty()) return;
 
         Mat grayFrame = new Mat();
         Imgproc.cvtColor(frame, grayFrame, Imgproc.COLOR_BGR2GRAY);
         Imgproc.equalizeHist(grayFrame, grayFrame);
-
         MatOfRect faceDetections = new MatOfRect();
-        faceDetector.detectMultiScale(grayFrame, faceDetections);
+//        faceDetector.detectMultiScale(grayFrame, faceDetections);
+        faceDetector.detectMultiScale(grayFrame, faceDetections, 1.1, 3, 0, new Size(30, 70), new Size());
 
         for (Rect rect : faceDetections.toArray()) {
             Imgproc.rectangle(frame,
                     new Point(rect.x, rect.y),
                     new Point(rect.x + rect.width, rect.y + rect.height),
                     new Scalar(0, 255, 0), 3);
+
+            Imgproc.putText(frame, "TARGET", new Point(rect.x, rect.y - 10),
+                    Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, new Scalar(0, 255, 0), 2);
         }
     }
 
+    private static BufferedImage matToBufferedImage(Mat matrix){
+        int width = matrix.cols();
+        int height = matrix.rows();
+        int channels = matrix.channels();
+
+        byte[] sourcePixels = new byte[width * height * channels];
+        matrix.get(0,0,sourcePixels);
+
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
+
+        final byte[] targetPixels = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
+        System.arraycopy(sourcePixels, 0 , targetPixels, 0 , sourcePixels.length);
+
+        return image;
+    }
+
+    //old
+    /*
     private static BufferedImage matToBufferedImage(Mat matrix) {
         int cols = matrix.cols();
         int rows = matrix.rows();
@@ -101,6 +123,7 @@ public class VideoReceiver {
         }
         return image;
     }
+     */
 
     public void stopServer() { running = false; }
     public BufferedImage getLatestFrame() { return latestFrame; }
