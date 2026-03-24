@@ -40,7 +40,12 @@ public class TelemetryDisplay extends JFrame {
 
     public TelemetryDisplay(){
         this.setTitle("Telemetry AGR");
-        //this.setIconImage(Toolkit.getDefaultToolkit().getImage(ClassLoader.getSystemResource("src/media/logo_black.png")));
+        try {
+            ImageIcon img = new ImageIcon(getClass().getResource("/media/logo_white_200.png"));
+            this.setIconImage(img.getImage());
+        } catch (Exception e) {
+            System.out.println("Icon not found: " + e.getMessage());
+        }
         this.setContentPane(MainPanel);
         this.pack();
         this.setSize(1920,1080);

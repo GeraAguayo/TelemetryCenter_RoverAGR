@@ -1,4 +1,5 @@
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
@@ -78,15 +79,16 @@ public class MainWindow extends JFrame {
     //Graph telemetry
     boolean active_instance_graph = false;
 
-    //Chart manager
-//    LineChart tempChartObj = new LineChart();
-//    int MAX_CHART_ELEMENTS = 10;
-//    Queue<Float> temp_values = new ArrayDeque<>(MAX_CHART_ELEMENTS);
 
 
     public MainWindow(){
         this.setTitle("Telemetry AGR");
-        //this.setIconImage(Toolkit.getDefaultToolkit().getImage(ClassLoader.getSystemResource("src/media/logo_black.png")));
+        try {
+            ImageIcon img = new ImageIcon(getClass().getResource("/media/logo_white_200.png"));
+            this.setIconImage(img.getImage());
+        } catch (Exception e) {
+            System.out.println("Icon not found: " + e.getMessage());
+        }
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setContentPane(MainPanel);
         this.pack();
