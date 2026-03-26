@@ -1,0 +1,20 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="TelemetryCenter:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/TelemetryCenter_jar</output-path>
+    <root id="archive" name="TelemetryCenter_jar.jar">
+      <element id="module-output" name="TelemetryCenter" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../../Java_libs/commons-lang3-3.20.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../../Java_libs/commons-lang3-3.20.0-tests.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../../Java_libs/jcommon-1.0.24.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../../Java_libs/jfreechart-1.5.6.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../../Java_libs/opencsv-5.12.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../../Java_libs/opencv-4120.jar" path-in-jar="/" />
+      <element id="file-copy" path="$PROJECT_DIR$/../../Java_libs/opencv-4120.jar" />
+      <element id="file-copy" path="$PROJECT_DIR$/../../Java_libs/opencsv-5.12.0.jar" />
+      <element id="library" level="project" name="jcommon-1.0.24" />
+      <element id="file-copy" path="$PROJECT_DIR$/../../Java_libs/commons-lang3-3.20.0.jar" />
+      <element id="file-copy" path="$PROJECT_DIR$/../../Java_libs/commons-lang3-3.20.0-tests.jar" />
+      <element id="file-copy" path="$PROJECT_DIR$/../../Java_libs/x64/opencv_java4120.dll" />
+    </root>
+  </artifact>
+</component>
