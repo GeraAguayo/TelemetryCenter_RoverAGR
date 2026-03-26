@@ -13,7 +13,7 @@ This tool was developed as part of the Rover AGR project.
 * Real-time telemetry reception via UDP
 * Live telemetry visualization
 * Graph-based telemetry monitoring
-* Live camera stream using OpenCV
+* Live camera stream and target recognition using OpenCV
 * Modular telemetry processing system
 * Designed for rover testing and monitoring
 
