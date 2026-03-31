@@ -17,13 +17,16 @@ public class VideoReceiver {
 
     private volatile BufferedImage latestFrame;
     private boolean running = false;
+    private CascadeClassifier bodyDetector;
     private CascadeClassifier faceDetector;
 
     public VideoReceiver() {
-        String xmlPath = "haarcascade_fullbody.xml";
-        this.faceDetector = new CascadeClassifier(xmlPath);
+        String xmlPathBody = "haarcascade_fullbody.xml";
+        String xmlPathFace = "haarcascade_frontalface_alt.xml";
+        this.bodyDetector = new CascadeClassifier(xmlPathBody);
+        this.faceDetector = new CascadeClassifier(xmlPathFace);
 
-        if (faceDetector.empty()) {
+        if (bodyDetector.empty() && faceDetector.empty()) {
             System.out.println("Error - Not able to load XML file.");
         }
     }
@@ -55,7 +58,8 @@ public class VideoReceiver {
 
                         if (!frame.empty()) {
                             Core.flip(frame, frame, 1);
-                            detect(frame);
+                            detectBody(frame);
+                            detectFace(frame);
                             latestFrame = matToBufferedImage(frame);
                         }
                     }
@@ -66,15 +70,13 @@ public class VideoReceiver {
         }).start();
     }
 
-    private void detect(Mat frame) {
-        if (faceDetector.empty()) return;
-
+    private void detectBody(Mat frame) {
+        if (bodyDetector.empty()) return;
         Mat grayFrame = new Mat();
         Imgproc.cvtColor(frame, grayFrame, Imgproc.COLOR_BGR2GRAY);
         Imgproc.equalizeHist(grayFrame, grayFrame);
         MatOfRect faceDetections = new MatOfRect();
-//        faceDetector.detectMultiScale(grayFrame, faceDetections);
-        faceDetector.detectMultiScale(grayFrame, faceDetections, 1.1, 3, 0, new Size(30, 70), new Size());
+        bodyDetector.detectMultiScale(grayFrame, faceDetections, 1.1, 3, 0, new Size(30, 70), new Size());
 
         for (Rect rect : faceDetections.toArray()) {
             Imgproc.rectangle(frame,
@@ -84,6 +86,26 @@ public class VideoReceiver {
 
             Imgproc.putText(frame, "TARGET", new Point(rect.x, rect.y - 10),
                     Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, new Scalar(0, 255, 0), 2);
+        }
+    }
+
+    private void detectFace(Mat frame) {
+        if (faceDetector.empty()) return;
+        Mat grayFrame = new Mat();
+        Imgproc.cvtColor(frame, grayFrame, Imgproc.COLOR_BGR2GRAY);
+        Imgproc.equalizeHist(grayFrame, grayFrame);
+        MatOfRect faceDetections = new MatOfRect();
+        faceDetector.detectMultiScale(grayFrame, faceDetections);
+        //bodyDetector.detectMultiScale(grayFrame, faceDetections, 1.1, 3, 0, new Size(30, 70), new Size());
+
+        for (Rect rect : faceDetections.toArray()) {
+            Imgproc.rectangle(frame,
+                    new Point(rect.x, rect.y),
+                    new Point(rect.x + rect.width, rect.y + rect.height),
+                    new Scalar(0, 0, 255), 3);
+
+            Imgproc.putText(frame, "TARGET", new Point(rect.x, rect.y - 10),
+                    Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, new Scalar(0, 0, 255), 2);
         }
     }
 
@@ -102,28 +124,6 @@ public class VideoReceiver {
 
         return image;
     }
-
-    //old
-    /*
-    private static BufferedImage matToBufferedImage(Mat matrix) {
-        int cols = matrix.cols();
-        int rows = matrix.rows();
-
-        BufferedImage image = new BufferedImage(cols, rows, BufferedImage.TYPE_INT_RGB);
-
-        for (int y = 0; y < rows; y++) {
-            for (int x = 0; x < cols; x++) {
-                double[] data = matrix.get(y, x);
-                int b = (int) data[0];
-                int g = (int) data[1];
-                int r = (int) data[2];
-                int rgb = (r << 16) | (g << 8) | b;
-                image.setRGB(x, y, rgb);
-            }
-        }
-        return image;
-    }
-     */
 
     public void stopServer() { running = false; }
     public BufferedImage getLatestFrame() { return latestFrame; }

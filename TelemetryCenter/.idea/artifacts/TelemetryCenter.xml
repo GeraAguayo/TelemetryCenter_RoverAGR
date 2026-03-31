@@ -1,7 +1,7 @@
 <component name="ArtifactManager">
-  <artifact type="jar" name="TelemetryCenter:jar">
-    <output-path>$PROJECT_DIR$/out/artifacts/TelemetryCenter_jar</output-path>
-    <root id="archive" name="TelemetryCenter_jar.jar">
+  <artifact type="jar" name="TelemetryCenter">
+    <output-path>$PROJECT_DIR$/out/artifacts/TelemetryCenter</output-path>
+    <root id="archive" name="TelemetryCenter.jar">
       <element id="module-output" name="TelemetryCenter" />
       <element id="extracted-dir" path="$PROJECT_DIR$/../../Java_libs/commons-lang3-3.20.0.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/../../Java_libs/commons-lang3-3.20.0-tests.jar" path-in-jar="/" />
