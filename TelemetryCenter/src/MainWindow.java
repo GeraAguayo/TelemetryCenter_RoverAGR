@@ -79,8 +79,6 @@ public class MainWindow extends JFrame {
     //Graph telemetry
     boolean active_instance_graph = false;
 
-
-
     public MainWindow(){
         this.setTitle("Telemetry AGR");
         try {
@@ -159,6 +157,7 @@ public class MainWindow extends JFrame {
                 if (telemetryTimer != null){
                     telemetryTimer.stop();
                 }
+                coords_calculator.distance_traveled = 0;
                 on_red();
                 setLabelSensorNA();
             }
@@ -386,6 +385,8 @@ public class MainWindow extends JFrame {
         this.labelGas.setText("N/A");
         this.labelLat.setText("N/A");
         this.labelLon.setText("N/A");
+        this.labelDelta.setText("0 m");
+        this.labelDistance.setText("0 m");
     }
 
     //Convert from log ids to definitions
