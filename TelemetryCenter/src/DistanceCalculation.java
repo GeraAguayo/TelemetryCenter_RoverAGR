@@ -11,6 +11,10 @@ public class DistanceCalculation {
 
 
     void addCoordinates(float lat, float lon){
+        if (lat == 0.0 || lon == 0.0){
+            // skip invalid coords
+            return;
+        }
         float rLat = (float) (Math.round(lat * 100000.0) / 100000.0);
         float rLon = (float) (Math.round(lon * 100000.0) / 100000.0);
 
