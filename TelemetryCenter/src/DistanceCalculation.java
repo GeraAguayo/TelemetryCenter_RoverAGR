@@ -58,8 +58,6 @@ public class DistanceCalculation {
         last_avg_lat = currentAvg[0];
         last_avg_lon = currentAvg[1];
         if (delta >= 5.0){
-            last_avg_lat = currentAvg[0];
-            last_avg_lon = currentAvg[1];
             distance_traveled+=delta;
             return delta;
         }

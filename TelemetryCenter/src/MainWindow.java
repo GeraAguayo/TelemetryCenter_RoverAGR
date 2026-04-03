@@ -196,6 +196,9 @@ public class MainWindow extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 coords_calculator.distance_traveled = 0;
+                labelDelta.setText("0 m");
+                labelDistance.setText("0 m");
+
 
             }
         });
