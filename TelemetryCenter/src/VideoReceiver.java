@@ -5,12 +5,8 @@ import org.opencv.imgproc.Imgproc;
 import org.opencv.objdetect.CascadeClassifier;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
-import java.io.ByteArrayOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -37,6 +33,11 @@ public class VideoReceiver {
     }
 
     public void startServer(int port) {
+
+        if (postProcessor == null || postProcessor.isShutdown()){
+            postProcessor = Executors.newSingleThreadExecutor();
+        }
+
         running = true;
         new Thread(() -> {
             int maxLength = 65507;
@@ -59,7 +60,7 @@ public class VideoReceiver {
 
                         if (frame != null && !frame.empty()) {
                             //if AI thread is free
-                            if (!isProcessing){
+                            if (!isProcessing && !postProcessor.isShutdown()){
                                 isProcessing = true;
                                 postProcessor.execute(() -> {
                                     try{
@@ -139,7 +140,11 @@ public class VideoReceiver {
 
     public void stopServer() {
         running = false;
-        postProcessor.shutdownNow();
+        if (postProcessor != null){
+            postProcessor.shutdownNow();
+        }
+        latestFrame = null;
+
     }
     public BufferedImage getLatestFrame() { return latestFrame; }
 }

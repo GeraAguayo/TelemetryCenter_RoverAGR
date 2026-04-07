@@ -1,7 +1,7 @@
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -61,6 +61,10 @@ public class MainWindow extends JFrame {
     boolean udp_ready = false;
     String ip_address = "";
 
+    //Video receiver
+    VideoReceiver videoReceiver = new VideoReceiver();
+    Timer videoGuiTimer;
+
     //Timers
     Timer telemetryTimer;
     Timer guiTimer;
@@ -108,7 +112,7 @@ public class MainWindow extends JFrame {
                     JOptionPane.showMessageDialog(null, "Set an IP address","IP Error",JOptionPane.ERROR_MESSAGE);
                 }
                 else{
-                    //Instantiate UDP class
+                    //Instantiate UDP class and video receiver
                     try {
                         if (udp_client != null){
                             //If active socket, close it
@@ -118,13 +122,15 @@ public class MainWindow extends JFrame {
                         udp_ready = true;
                         startUpdaterTelemetry();
 
+                        videoReceiver.startServer(5000);
+                        startVideoTimer();
+
                     } catch (IOException ex) {
                         JOptionPane.showMessageDialog(null, ex.getMessage(), "Connection Error", JOptionPane.ERROR_MESSAGE);
                         on_red();
                         udp_ready = false;
                         udp_client.close();
                     }
-
                 }
             }
         });
@@ -157,6 +163,12 @@ public class MainWindow extends JFrame {
                 if (telemetryTimer != null){
                     telemetryTimer.stop();
                 }
+                //stop video receiver
+                videoReceiver.stopServer();
+                if (videoGuiTimer != null){
+                    videoGuiTimer.stop();
+                }
+                videoLabel.setIcon(null);
                 coords_calculator.distance_traveled = 0;
                 on_red();
                 setLabelSensorNA();
@@ -173,15 +185,26 @@ public class MainWindow extends JFrame {
                 setLabelSensorNA();
                 udp_client.close();
                 udp_ready = false;
+                //stop video receiver
+                videoReceiver.stopServer();
+                if (videoGuiTimer != null){
+                    videoGuiTimer.stop();
+                }
+                videoLabel.setIcon(null);
                 if (telemetryTimer != null){
                     telemetryTimer.stop();
                 }
+                try { Thread.sleep(200); } catch (InterruptedException ex) {}
                 //Start new connection with same IP address
                 on_yellow();
                 try {
+                    //retry telemetry connection
                     udp_client = new UDP(ip_address);
                     udp_ready = true;
                     startUpdaterTelemetry();
+                    //retry video receiver connection
+                    videoReceiver.startServer(5000);
+                    startVideoTimer();
                 } catch (IOException ex) {
                     JOptionPane.showMessageDialog(null, ex.getMessage(), "Connection Error", JOptionPane.ERROR_MESSAGE);
                     on_red();
@@ -341,6 +364,22 @@ public class MainWindow extends JFrame {
         });
         this.telemetryTimer.setInitialDelay(0);
         this.telemetryTimer.start();
+    }
+
+    //Timer for video receiver
+    private void startVideoTimer(){
+        if (videoGuiTimer != null && videoGuiTimer.isRunning()){
+            videoGuiTimer.stop();
+        }
+
+        videoGuiTimer = new Timer(50, e -> {
+            BufferedImage img = videoReceiver.getLatestFrame();
+            if (img != null) {
+                videoLabel.setIcon(new ImageIcon(img));
+            }
+        });
+        videoGuiTimer.start();
+
     }
 
     //Timer for GUI updates

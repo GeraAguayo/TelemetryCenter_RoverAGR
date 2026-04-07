@@ -2,7 +2,6 @@ import java.io.IOException;
 import java.net.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import javax.swing.JOptionPane;
 
 public class UDP {
 
