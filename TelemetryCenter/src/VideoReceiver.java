@@ -11,6 +11,8 @@ import java.net.DatagramSocket;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class VideoReceiver {
     static { System.loadLibrary(Core.NATIVE_LIBRARY_NAME); }
@@ -19,6 +21,9 @@ public class VideoReceiver {
     private boolean running = false;
     private CascadeClassifier bodyDetector;
     private CascadeClassifier faceDetector;
+    private int frameCounter = 0;
+    private ExecutorService postProcessor = Executors.newSingleThreadExecutor();
+    private boolean isProcessing = false;
 
     public VideoReceiver() {
         String xmlPathBody = "haarcascade_fullbody.xml";
@@ -34,33 +39,41 @@ public class VideoReceiver {
     public void startServer(int port) {
         running = true;
         new Thread(() -> {
-            int maxLength = 65000;
+            int maxLength = 65507;
             try (DatagramSocket socket = new DatagramSocket(port)) {
+                socket.setReceiveBufferSize(2 * 1024 * 1024); // 2MB buffer
+
                 byte[] buffer = new byte[maxLength];
                 DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
 
                 while (running) {
                     socket.receive(packet);
-                    byte[] data = Arrays.copyOf(packet.getData(), packet.getLength());
+                    int len = packet.getLength();
 
-                    if (data.length < 100) {
-                        int packNums = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN).getInt();
-                        ByteArrayOutputStream frameBuffer = new ByteArrayOutputStream();
-
-                        for (int i = 0; i < packNums; i++) {
-                            socket.receive(packet);
-                            frameBuffer.write(packet.getData(), 0, packet.getLength());
-                        }
-
-                        byte[] frameData = frameBuffer.toByteArray();
+                    //if packet is greater than 100 bytes is an JPEG
+                    if (len > 100) {
+                        byte[] frameData = new byte[len];
+                        System.arraycopy(packet.getData(), 0, frameData, 0, len);
                         MatOfByte mob = new MatOfByte(frameData);
                         Mat frame = Imgcodecs.imdecode(mob, Imgcodecs.IMREAD_COLOR);
 
-                        if (!frame.empty()) {
-                            Core.flip(frame, frame, 1);
-                            detectBody(frame);
-                            detectFace(frame);
-                            latestFrame = matToBufferedImage(frame);
+                        if (frame != null && !frame.empty()) {
+                            //if AI thread is free
+                            if (!isProcessing){
+                                isProcessing = true;
+                                postProcessor.execute(() -> {
+                                    try{
+                                        detectBody(frame);
+                                        detectFace(frame);
+                                        latestFrame = matToBufferedImage(frame);
+                                    } finally {
+                                        isProcessing = false;
+                                    }
+                                });
+                            }
+                            else{
+                                latestFrame = matToBufferedImage(frame);
+                            }
                         }
                     }
                 }
@@ -69,7 +82,6 @@ public class VideoReceiver {
             }
         }).start();
     }
-
     private void detectBody(Mat frame) {
         if (bodyDetector.empty()) return;
         Mat grayFrame = new Mat();
@@ -125,6 +137,9 @@ public class VideoReceiver {
         return image;
     }
 
-    public void stopServer() { running = false; }
+    public void stopServer() {
+        running = false;
+        postProcessor.shutdownNow();
+    }
     public BufferedImage getLatestFrame() { return latestFrame; }
 }
