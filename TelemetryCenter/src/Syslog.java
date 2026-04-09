@@ -13,6 +13,7 @@ public class Syslog {
         syslog_dict.put(1,"The Rover is connected");
         syslog_dict.put(2,"BMP 280 sensor failed to initialize");
         syslog_dict.put(3,"Connection failed with telemetry Arduino");
+        syslog_dict.put(4,"Camera not connected");
     }
 
     public String getMessage(int key){

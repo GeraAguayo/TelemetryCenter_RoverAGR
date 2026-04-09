@@ -67,62 +67,62 @@ public class UDP {
         MainWindow.log_queue.add(new_msg);
     }
 
-    //Retrieve data
-    public int retrieveData() throws IOException {
+    public int retrieveData() throws IOException{
         try{
-
-            //Send initial request
-            String requestMsg = "Telemetry_Center";
-            byte[] sendBuffer = requestMsg.getBytes();
-            DatagramPacket sendPacket = new DatagramPacket(sendBuffer, sendBuffer.length, ip, PORT);
             byte[] receiveBuffer = new byte[1024];
-            DatagramPacket receivePacket;
-            String receivedData;
-
+            DatagramPacket receivePacket = new DatagramPacket(receiveBuffer, receiveBuffer.length);
             try{
-                socket.send(sendPacket);
-                //Prepare to receive data
-                receivePacket = new DatagramPacket(receiveBuffer, receiveBuffer.length);
-                //Get data from the rover
                 socket.receive(receivePacket);
-                receivedData = new String(receivePacket.getData(), 0, receivePacket.getLength());
-
-            } catch (java.net.SocketTimeoutException e){
-                //Connection lost
-                System.out.println(e.getMessage());
-                updateLog(DISCONNECTION_LOG);
-                return -1;
-            }
-
-            //Sensor data received
-            if (receivedData.equals("START_TM")){
-                //Get the number of sensor values
-                try{
-                    socket.receive(receivePacket);
-                    receivedData = new String(receivePacket.getData(), 0, receivePacket.getLength());
-                } catch (java.net.SocketTimeoutException e){
-                    //Connection lost
-                    System.out.println("Connection lost: " + e.getMessage());
-                    updateLog(DISCONNECTION_LOG);
-                    return -1;
-                }
-                int n_values = Integer.parseInt(receivedData);
-                float[] sensor_data = new float[n_values];
-                Arrays.fill(sensor_data, Float.NaN);
-
-                //Get sensor values
-                //float[] sensor_data = {Float.NaN, Float.NaN, Float.NaN}; //Temp, press, alt
-                for (int i = 0; i < n_values; i++){
+                String receivedData = new String(receivePacket.getData(), 0, receivePacket.getLength()).trim();
+                if (receivedData.equals("START_TM")){
+                    //Telemetry
+                    //Get the number of sensor values
                     try{
                         socket.receive(receivePacket);
                         receivedData = new String(receivePacket.getData(), 0, receivePacket.getLength());
+                    } catch (java.net.SocketTimeoutException e){
+                        //Connection lost
+                        System.out.println("Connection lost: " + e.getMessage());
+                        updateLog(DISCONNECTION_LOG);
+                        return -1;
+                    }
+                    int n_values = Integer.parseInt(receivedData);
+                    float[] sensor_data = new float[n_values];
+                    Arrays.fill(sensor_data, Float.NaN);
+
+                    //Get sensor values
+                    for (int i = 0; i < n_values; i++){
                         try{
-                            float sensor_val = Float.parseFloat(receivedData);
-                            sensor_data[i] = sensor_val;
+                            socket.receive(receivePacket);
+                            receivedData = new String(receivePacket.getData(), 0, receivePacket.getLength());
+                            try{
+                                float sensor_val = Float.parseFloat(receivedData);
+                                sensor_data[i] = sensor_val;
+                            }
+                            catch (Exception e){
+                                System.out.println("Could not convert value! " + e);
+                            }
+                        } catch (java.net.SocketTimeoutException e){
+                            //Connection lost
+                            System.out.println(e.getMessage());
+                            updateLog(DISCONNECTION_LOG);
+                            return -1;
                         }
-                        catch (Exception e){
-                            System.out.println("Could not convert value! " + e);
-                        }
+
+                    }
+                    //Update sensor values
+                    this.temp = sensor_data[0];
+                    this.pres = sensor_data[1];
+                    this.alt = sensor_data[2];
+                    this.hum = sensor_data[3];
+                    this.gas = sensor_data[4];
+                    this.lat = sensor_data[5];
+                    this.lon = sensor_data[6];
+
+                    //Get end message
+                    try{
+                        socket.receive(receivePacket);
+                        receivedData = new String(receivePacket.getData(), 0, receivePacket.getLength());
                     } catch (java.net.SocketTimeoutException e){
                         //Connection lost
                         System.out.println(e.getMessage());
@@ -130,69 +130,34 @@ public class UDP {
                         return -1;
                     }
 
+                    return 0;
                 }
-                //Update sensor values
-                this.temp = sensor_data[0];
-                this.pres = sensor_data[1];
-                this.alt = sensor_data[2];
-                this.hum = sensor_data[3];
-                this.gas = sensor_data[4];
-                this.lat = sensor_data[5];
-                this.lon = sensor_data[6];
-
-                //Get end message
-                try{
+                else if (receivedData.equals("SYSLOG")){
+                    //System logs
                     socket.receive(receivePacket);
-                    receivedData = new String(receivePacket.getData(), 0, receivePacket.getLength());
-                } catch (java.net.SocketTimeoutException e){
-                    //Connection lost
-                    System.out.println(e.getMessage());
-                    updateLog(DISCONNECTION_LOG);
-                    return -1;
-                }
-
-                return 0;
-
-            }
-            //SYSLOG received
-            else if (receivedData.equals("SYSLOG")){
-                try{
-                    socket.receive(receivePacket);
-                    receivedData = new String(receivePacket.getData(), 0, receivePacket.getLength());
-                    int log_id = Integer.parseInt(receivedData);
-                    //Update global variable
+                    String id_str = new String(receivePacket.getData(), 0, receivePacket.getLength()).trim();
+                    int log_id = Integer.parseInt(id_str);
                     updateLog(log_id);
-                } catch (java.net.SocketTimeoutException e){
-                    //Connection lost
-                    System.out.println(e.getMessage());
-                    updateLog(DISCONNECTION_LOG);
-                    return -1;
-                }
-                //Get end message
-                try{
+                    //get end message
                     socket.receive(receivePacket);
-                    receivedData = new String(receivePacket.getData(), 0, receivePacket.getLength());
-                    System.out.println("End syslog");
-                } catch (java.net.SocketTimeoutException e){
-                    //Connection lost
-                    System.out.println("Connection lost: " + e.getMessage());
-                    updateLog(DISCONNECTION_LOG);
-                    return -1;
+                    return 0;
                 }
-
-                return 0;
+                else if (receivedData.equals("END")){
+                    //end of message
+                    return 0;
+                }
+                else{
+                    System.out.println("Unknow server msg: "+ receivedData);
+                    return 1;
+                }
+            } catch (IOException e) {
+                System.err.println("Could not connect to server:" + e);
+                updateLog(DISCONNECTION_LOG);
+                return -1;
             }
-            else if(receivedData.equals("END")){
-                return 0;
-            }
-            else{
-                System.out.println("Unknow server msg: "+ receivedData);
-                return 1;
-            }
-        } catch (IOException e ){
+        } catch (Exception e) {
             System.err.println("Could not connect to server:" + e);
+            updateLog(DISCONNECTION_LOG);
             return -1;
         }
-
-    }
-}
+    }}
