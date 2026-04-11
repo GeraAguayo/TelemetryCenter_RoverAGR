@@ -1,3 +1,4 @@
+import javax.sound.sampled.LineUnavailableException;
 import javax.swing.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -283,7 +284,13 @@ public class MainWindow extends JFrame {
 
     private void updateSensorValues() throws IOException {
         try{
+            if (!udp_client.isOnline()){
+                on_red();
+                setLabelSensorNA();
+                return;
+            }
             //Update sensor values based on UDP client info
+            int return_code = udp_client.retrieveData();
             String temp_str = String.valueOf(udp_client.temp);
             String alt_str = String.valueOf(udp_client.alt);
             String pres_str = String.valueOf(udp_client.pres);
@@ -291,7 +298,6 @@ public class MainWindow extends JFrame {
             String gas_str = String.valueOf(udp_client.gas);
             String lat_str = String.valueOf(udp_client.lat);
             String lon_str = String.valueOf(udp_client.lon);
-            int return_code = udp_client.retrieveData();
             this.labelTemp.setText(temp_str);
             this.labelAlt.setText(alt_str);
             this.labelPress.setText(pres_str);
@@ -347,6 +353,8 @@ public class MainWindow extends JFrame {
             this.udp_ready = false;
             on_red();
             JOptionPane.showMessageDialog(null, ex.getMessage(), "Connection lost!", JOptionPane.ERROR_MESSAGE);
+        } catch (LineUnavailableException e) {
+            throw new RuntimeException(e);
         }
     }
 

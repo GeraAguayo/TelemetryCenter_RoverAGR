@@ -1,3 +1,5 @@
+import javax.sound.sampled.LineUnavailableException;
+import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.net.*;
 import java.text.SimpleDateFormat;
@@ -21,6 +23,9 @@ public class UDP {
     boolean SOCKET_OPEN = false;
     int DISCONNECTION_LOG = 0;
     int CONNECTION_LOG = 1;
+    //Heartbeat control
+    private long lastResponseTime = System.currentTimeMillis();
+    private final int MAX_OFFLINE_MS = 5000;
 
     //Constructor
     public UDP(String ip_address) throws IOException {
@@ -67,13 +72,21 @@ public class UDP {
         MainWindow.log_queue.add(new_msg);
     }
 
-    public int retrieveData() throws IOException{
+    public boolean isOnline() throws LineUnavailableException {
+        boolean result = (System.currentTimeMillis() - lastResponseTime) < MAX_OFFLINE_MS;
+        if (!result){ Sound.play_disconnected();}
+        return result;
+    }
+
+    public int retrieveData() throws IOException, LineUnavailableException {
         try{
             byte[] receiveBuffer = new byte[1024];
             DatagramPacket receivePacket = new DatagramPacket(receiveBuffer, receiveBuffer.length);
             try{
                 socket.receive(receivePacket);
+                lastResponseTime = System.currentTimeMillis();
                 String receivedData = new String(receivePacket.getData(), 0, receivePacket.getLength()).trim();
+                Sound.packet_received();
                 if (receivedData.equals("START_TM")){
                     //Telemetry
                     //Get the number of sensor values
@@ -84,6 +97,7 @@ public class UDP {
                         //Connection lost
                         System.out.println("Connection lost: " + e.getMessage());
                         updateLog(DISCONNECTION_LOG);
+                        Sound.play_beep_low();
                         return -1;
                     }
                     int n_values = Integer.parseInt(receivedData);
@@ -106,6 +120,7 @@ public class UDP {
                             //Connection lost
                             System.out.println(e.getMessage());
                             updateLog(DISCONNECTION_LOG);
+                            Sound.play_disconnected();
                             return -1;
                         }
 
@@ -127,6 +142,7 @@ public class UDP {
                         //Connection lost
                         System.out.println(e.getMessage());
                         updateLog(DISCONNECTION_LOG);
+                        Sound.play_disconnected();
                         return -1;
                     }
 
@@ -153,11 +169,13 @@ public class UDP {
             } catch (IOException e) {
                 System.err.println("Could not connect to server:" + e);
                 updateLog(DISCONNECTION_LOG);
+                Sound.play_disconnected();
                 return -1;
             }
         } catch (Exception e) {
             System.err.println("Could not connect to server:" + e);
             updateLog(DISCONNECTION_LOG);
+            Sound.play_disconnected();
             return -1;
         }
     }}
