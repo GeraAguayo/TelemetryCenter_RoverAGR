@@ -437,6 +437,8 @@ public class MainWindow extends JFrame {
         this.labelLon.setText("N/A");
         this.labelDelta.setText("0 m");
         this.labelDistance.setText("0 m");
+        ImageIcon noVideoIcon = new ImageIcon(getClass().getResource("/media/no_video.jpg"));
+        this.videoLabel.setIcon(noVideoIcon);
     }
 
     //Convert from log ids to definitions
